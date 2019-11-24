@@ -1,11 +1,11 @@
-const titles = require("../data/manga_title.json");
 const puppeteer = require("puppeteer");
 const fs = require("fs");
 const URL = "https://wemp.app/posts/7d6aaba7-511d-416f-87f7-27acc7ea7f3b";
-let pageList = {};
+let title_list = require("../data/manga_title.json");
+let manga_list = require("../data/manga_list.json");
 
 (async () => {
-    console.log("BEFORTE LAUNCH");
+    // console.log("BEFORTE LAUNCH");
     const browser = await puppeteer.launch({
         headless: true,
         args: [
@@ -19,25 +19,31 @@ let pageList = {};
         ],
         executablePath: "/usr/bin/chromium-browser"
     });
-    console.log("after launch");
+    // console.log("after launch");
     const page = await browser.newPage();
-    console.log("after new page");
+    // console.log("after new page");
+    // timeout: 0 to wait infinitely
     await page.goto(URL, { waitUntil: "load", timeout: 0 });
-    console.log("after go to");
-    let count = 0;
-    pageList = await page
+    // console.log("after go to");
+    manga_list = await page
         .evaluate(
-            ({ pageList }) => {
-                let name = document
+            ({ manga_list }) => {
+                let name_alt = document
                     .querySelectorAll("[data-role='paragraph']")[0]
                     .querySelectorAll("span")[3].textContent;
-                console.log("namne", name);
-                pageList[name] = {
+                let post_title = document.querySelector(".post__title")
+                    .innerText;
+                let numPattern = /(\d+)/;
+                let chapNum;
+                if (numPattern.exec(post_title)) {
+                    chapNum = numPattern.exec(post_title)[1];
+                }
+                manga_list[name] = {
                     name: name
                 };
-                return pageList;
+                return manga_list;
             },
-            { pageList }
+            { manga_list }
         )
         .catch(e => {
             throw e;
