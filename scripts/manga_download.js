@@ -26,6 +26,7 @@ const URL = "https://wemp.app/posts/7d6aaba7-511d-416f-87f7-27acc7ea7f3b";
     page.on("console", msg => console.log(msg.text()));
     let [url_list, title] = await page
         .evaluate(() => {
+            let url_list = [];
             let title_alt = document
                 .querySelectorAll("[data-role='paragraph']")[0]
                 .querySelectorAll("span")[3].textContent;
@@ -37,17 +38,21 @@ const URL = "https://wemp.app/posts/7d6aaba7-511d-416f-87f7-27acc7ea7f3b";
             if (titlePattern.exec(post_title) === null) {
                 return;
             }
-            title =
-                titlePattern.exec(post_title)[1] +
-                "_" +
-                titlePattern.exec(post_title)[2];
-
+            let title = title_alt + "_" + titlePattern.exec(post_title)[2];
+            document.querySelectorAll("#content>p>img").forEach(img => {
+                url_list.push(img.src);
+            });
             return [url_list, title];
         }, {})
         .catch(e => {
             throw e;
         });
     console.log("after evaluate, title", title);
+    console.log("list of url", url_list);
+    fs.writeFileSync(
+        `./data/temp/${title}.json`,
+        JSON.stringify(url_list, null, 4)
+    );
     await page.close();
     await browser.close();
 })();
