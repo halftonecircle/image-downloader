@@ -28,19 +28,21 @@ let manga_list = require("../data/manga_list.json");
     manga_list = await page
         .evaluate(
             ({ manga_list }) => {
-                let name_alt = document
+                let title_alt = document
                     .querySelectorAll("[data-role='paragraph']")[0]
                     .querySelectorAll("span")[3].textContent;
                 let post_title = document.querySelector(".post__title")
                     .innerText;
-                let numPattern = /(\d+)/;
-                let chapNum;
-                if (numPattern.exec(post_title)) {
-                    chapNum = numPattern.exec(post_title)[1];
+                let titlePattern = /[「【](.*)[】」]\s?.{1}(\d+).{1}/;
+                // let numPattern = /(\d+)/;
+                // let chinPattern =  /[\u3000-\u303f]([\u4E00-\u9FA5]+[,]?\W?[\u4E00-\u9FA5]+)\W?[\u4E00-\u9FA5](\d+)[\u4E00-\u9FA5]/;
+
+                if (titlePattern.exec(post_title) === null) {
+                    return;
                 }
-                manga_list[name] = {
-                    name: name
-                };
+                let title = titlePattern.exec(post_title)[1];
+                let chapNum = titlePattern.exec(post_title)[2];
+
                 return manga_list;
             },
             { manga_list }
