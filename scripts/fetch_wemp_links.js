@@ -53,6 +53,8 @@ const URL = "https://wemp.app/posts/7d6aaba7-511d-416f-87f7-27acc7ea7f3b";
         `./data/temp/${title}.json`,
         JSON.stringify(url_list, null, 4)
     );
+    // TODO : write the title.json to an array, then write to a file to keep trach
+    // of urls added in a session
     await page.close();
     await browser.close();
 })();
